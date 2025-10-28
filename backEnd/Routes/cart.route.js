@@ -1,6 +1,7 @@
 import express from "express";
 import {
   AddToCart,
+  checkout,
   clearCart,
   getcart,
   removeFromCart,
@@ -14,5 +15,6 @@ router.get("/:userId", getcart);
 router.patch("/:userId/update", updateCartItem);
 router.delete("/clear/:userId", clearCart);
 router.delete("/:userId/:productId", removeFromCart);
+router.post("/:userId/checkout", checkout);
 
 export default router;

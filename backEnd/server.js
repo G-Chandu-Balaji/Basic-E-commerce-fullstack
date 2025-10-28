@@ -4,6 +4,7 @@ import mongoose from "mongoose";
 import ProductRoutes from "./Routes/product.routes.js";
 import CartRoutes from "./Routes/cart.route.js";
 import UserRoutes from "./Routes/user.route.js";
+import OrderRoutes from "./Routes/orders.route.js";
 
 dotenv.config();
 
@@ -14,6 +15,7 @@ app.use(express.json());
 app.use("/api/products", ProductRoutes);
 app.use("/api/cart", CartRoutes);
 app.use("/api/user", UserRoutes);
+app.use("/api/orders", OrderRoutes);
 
 app.listen(port, () => {
   console.log(`Server is Running on port ${port}`);

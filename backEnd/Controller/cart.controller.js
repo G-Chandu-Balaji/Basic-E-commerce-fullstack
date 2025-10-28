@@ -1,4 +1,5 @@
 import cartModel from "../Model/cart.model.js";
+import orderModel from "../Model/order.model.js";
 import productModel from "../Model/product.model.js";
 
 //...........Add to cart........................
@@ -54,7 +55,12 @@ export const getcart = async (req, res) => {
       });
     }
 
-    res.status(200).json(cart);
+    const total = cart.items.reduce((sum, item) => {
+      const price = item.productId?.price || 0;
+      return sum + price * item.quantity;
+    }, 0);
+
+    res.status(200).json({ cart, total });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
@@ -116,6 +122,64 @@ export const clearCart = async (req, res) => {
     await cart.save();
 
     res.status(200).json({ message: "Cart cleared successfully", cart });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+//..................chechout..........................
+export const checkout = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const { shippingAddress, paymentMethod } = req.body;
+
+    // Find user's cart
+    const cart = await cartModel
+      .findOne({ userId })
+      .populate("items.productId");
+    if (!cart || cart.items.length === 0) {
+      return res.status(400).json({ message: "Cart is empty or not found" });
+    }
+
+    // Calculate total price
+    const totalPrice = cart.items.reduce((sum, item) => {
+      return sum + item.productId.price * item.quantity;
+    }, 0);
+
+    // Create order items
+    const orderItems = cart.items.map((item) => ({
+      productId: item.productId._id,
+      quantity: item.quantity,
+      price: item.productId.price,
+    }));
+
+    //  Create new order
+    const newOrder = new orderModel({
+      userId,
+      items: orderItems,
+      shippingAddress,
+      paymentMethod,
+      totalPrice,
+    });
+
+    await newOrder.save();
+
+    //  Clear the user's cart
+    cart.items = [];
+    await cart.save();
+
+    //  Return receipt
+    res.status(201).json({
+      message: "Checkout successful",
+      order: {
+        orderId: newOrder._id,
+        total: totalPrice,
+        paymentMethod: newOrder.paymentMethod,
+        timestamp: newOrder.createdAt,
+        items: orderItems,
+        shippingAddress: newOrder.shippingAddress,
+      },
+    });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }

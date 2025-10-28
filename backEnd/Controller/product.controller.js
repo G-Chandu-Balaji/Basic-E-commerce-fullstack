@@ -6,7 +6,6 @@ export const FetchProducts = async (req, res) => {
     if (products.length === 0) {
       return res.status(404).json({ message: "No products found" });
     }
-    console.log("send request sent");
     res.status(200).json({ result: products.length, data: products });
   } catch (err) {
     console.error("Error fetching products:", err);
