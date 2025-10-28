@@ -52,15 +52,11 @@ export const getcart = async (req, res) => {
         message: "Cart is empty",
         items: [],
         cartId: cart._id,
+        totalPrice: 0,
       });
     }
 
-    const total = cart.items.reduce((sum, item) => {
-      const price = item.productId?.price || 0;
-      return sum + price * item.quantity;
-    }, 0);
-
-    res.status(200).json({ cart, total });
+    res.status(200).json({ cart });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
@@ -141,11 +137,6 @@ export const checkout = async (req, res) => {
       return res.status(400).json({ message: "Cart is empty or not found" });
     }
 
-    // Calculate total price
-    const totalPrice = cart.items.reduce((sum, item) => {
-      return sum + item.productId.price * item.quantity;
-    }, 0);
-
     // Create order items
     const orderItems = cart.items.map((item) => ({
       productId: item.productId._id,
@@ -173,7 +164,7 @@ export const checkout = async (req, res) => {
       message: "Checkout successful",
       order: {
         orderId: newOrder._id,
-        total: totalPrice,
+        total: newOrder.totalPrice,
         paymentMethod: newOrder.paymentMethod,
         timestamp: newOrder.createdAt,
         items: orderItems,
