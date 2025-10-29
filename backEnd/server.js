@@ -1,5 +1,6 @@
 import express from "express";
 import dotenv from "dotenv";
+import cors from "cors";
 import mongoose from "mongoose";
 import ProductRoutes from "./Routes/product.routes.js";
 import CartRoutes from "./Routes/cart.route.js";
@@ -11,7 +12,7 @@ dotenv.config();
 const port = process.env.PORT;
 const app = new express();
 app.use(express.json());
-
+app.use(cors());
 app.use("/api/products", ProductRoutes);
 app.use("/api/cart", CartRoutes);
 app.use("/api/user", UserRoutes);

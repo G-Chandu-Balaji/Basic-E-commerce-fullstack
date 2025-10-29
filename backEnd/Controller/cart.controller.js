@@ -150,7 +150,7 @@ export const checkout = async (req, res) => {
       items: orderItems,
       shippingAddress,
       paymentMethod,
-      totalPrice,
+      totalPrice: 0,
     });
 
     await newOrder.save();
